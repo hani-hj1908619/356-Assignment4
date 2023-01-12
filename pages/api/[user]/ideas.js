@@ -4,11 +4,11 @@ import { validate as uuidValidate } from 'uuid';
 export default async function handler(req, res) {
     try {
         const { user } = req.query
-        const file = await fs.promises.readFile("tmp/ideas.json");
+        const file = await fs.promises.readFile("/tmp/ideas.json");
         const ideas = JSON.parse(file)
 
         //Identifier validation
-        const usersFile = await fs.promises.readFile("tmp/users.json");
+        const usersFile = await fs.promises.readFile("/tmp/users.json");
         const serverUsers = JSON.parse(usersFile)
         if (!uuidValidate(user) || !serverUsers.includes(user)) {
             return res.status(403).json({ "error": "Invalid identifier" })
@@ -23,14 +23,14 @@ export default async function handler(req, res) {
         else if (req.method === "POST") {
             userIdeas.push(JSON.parse(req.body))
             ideas[user] = userIdeas
-            fs.writeFileSync("tmp/ideas.json", JSON.stringify(ideas))
+            fs.writeFileSync("/tmp/ideas.json", JSON.stringify(ideas))
             res.status(200).send()
         }
         else if (req.method === "DELETE") {
             const { index } = JSON.parse(req.body)
             userIdeas.splice(index, 1)
             ideas[user] = userIdeas
-            fs.writeFileSync("tmp/ideas.json", JSON.stringify(ideas))
+            fs.writeFileSync("/tmp/ideas.json", JSON.stringify(ideas))
             res.status(200).send()
         }
     } catch (e) {
