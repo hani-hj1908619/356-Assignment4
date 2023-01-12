@@ -2,28 +2,39 @@
 
 import { Box, Button, Stack } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AddForm from './add-form';
 import IdeaCard from './idea-card';
+import { useIdeaStore } from '../stores/store';
 
 export default function Home() {
   const [showForm, setShowForm] = useState(false)
-  const [user, setUser] = useState(() => {
-    let savedUser = localStorage.getItem("user");
+  const [ideas, setIdeas] = useState([])
+  const user = useIdeaStore((state) => state.user);
+  const setUser = useIdeaStore((state) => state.setUser);
 
-    if (!savedUser) {
-      const fetchNewUser = async () => {
-        const response = await fetch('http://localhost:3000/api/identifier')
-        const json = await response.json();
-        savedUser = json
-        localStorage.setItem("user", savedUser);
-      }
-      fetchNewUser()
+  useEffect(() => {
+    async function fetchNewUser() {
+      const res = await fetch('http://localhost:3000/api/identifier')
+      const newUser = await res.json()
+      console.log(newUser);
+      setUser(newUser)
     }
 
-    return savedUser
-  });
+    if (!user) fetchNewUser()
+  }, [])
 
+  const query = useQuery(
+    ["ideas", user],
+    async () => await fetcher(`http://localhost:3000/api/${user}/ideas`),
+    { retry: false }
+  );
+
+  useEffect(() => {
+    if (query.isSuccess) setIdeas(query.data.ideas);
+  }, [query]);
+
+  // Mutations
   const queryClient = useQueryClient();
 
   // Delete
@@ -50,15 +61,6 @@ export default function Home() {
     addIdea.mutate(idea, { onSuccess: () => queryClient.invalidateQueries(["ideas"]) })
   }
 
-  const query = useQuery(
-    ["ideas", user],
-    () => fetcher(`http://localhost:3000/api/${user}/ideas`),
-    {
-      suspense: true,
-      retry: false,
-    }
-  );
-
   return (
     <Box sx={{ bgcolor: '#cfe8fc', height: "100vh", paddingTop: 5 }}>
       <Box sx={{ width: '60%', margin: '0 auto' }}>
@@ -73,13 +75,13 @@ export default function Home() {
             >
               New Idea
             </Button>
-            {query.data.ideas &&
-              <Stack spacing={2}>
-                {query.data.ideas.map((idea, index) => (
-                  <IdeaCard key={index} idea={idea} deleteFn={() => handleDelete(index)} />
-                ))}
-              </Stack>
-            }
+
+            <Stack spacing={2}>
+              {ideas.map((idea, index) => (
+                <IdeaCard key={index} idea={idea} deleteFn={() => handleDelete(index)} />
+              ))}
+            </Stack>
+
           </Box>
         }
       </Box>
@@ -90,7 +92,7 @@ export default function Home() {
 const fetcher = async (...args) => {
   const response = await fetch(...args)
   if (!response.ok) {
-    console.log(Error(response.status))
+    throw new Error(response.status)
   }
   return await response.json()
 };

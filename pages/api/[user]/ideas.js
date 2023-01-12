@@ -8,7 +8,9 @@ export default async function handler(req, res) {
         const ideas = JSON.parse(file)
 
         //Identifier validation
-        if (!uuidValidate(user)) {
+        const usersFile = await fs.promises.readFile("tmp/users.json");
+        const serverUsers = JSON.parse(usersFile)
+        if (!uuidValidate(user) || !serverUsers.includes(user)) {
             return res.status(403).json({ "error": "Invalid identifier" })
         }
 
