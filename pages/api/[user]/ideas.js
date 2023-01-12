@@ -2,19 +2,25 @@ import fs from "fs";
 import { validate as uuidValidate } from 'uuid';
 
 export default async function handler(req, res) {
-    const ideasPath = "./tmp/ideas.json"
-    const usersPath = "./tmp/users.json"
+    const ideasPath = "/tmp/ideas.json"
+    const usersPath = "/tmp/users.json"
     try {
         const { user } = req.query
-        const file = await fs.promises.readFile(ideasPath);
-        const ideas = JSON.parse(file)
-
         //Identifier validation
-        const usersFile = await fs.promises.readFile(usersPath);
-        const serverUsers = JSON.parse(usersFile)
+        let serverUsers = []
+        try {
+            const file = await fs.promises.readFile(usersPath);
+            serverUsers = JSON.parse(file)
+        } catch { }
         if (!uuidValidate(user) || !serverUsers.includes(user)) {
             return res.status(403).json({ "error": "Invalid identifier" })
         }
+
+        let ideas = {}
+        try {
+            const file = await fs.promises.readFile(ideasPath);
+            ideas = JSON.parse(file)
+        } catch { }
 
         let userIdeas = ideas[user]
         if (!userIdeas) userIdeas = []
@@ -36,6 +42,7 @@ export default async function handler(req, res) {
             res.status(200).send()
         }
     } catch (e) {
+        // console.log(e);
         res.status(500).json({ error: e.message });
     }
 }
