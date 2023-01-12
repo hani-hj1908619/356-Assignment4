@@ -2,10 +2,10 @@
 
 import { Box, Button, Stack } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
-import AddForm from 'app/add-form';
-import IdeaCard from 'app/idea-card';
-import { useIdeaStore } from 'stores/store';
+import { useEffect, useState } from 'react';
+import { useIdeaStore } from '../stores/store';
+import AddForm from './add-form';
+import IdeaCard from './idea-card';
 
 export default function Home() {
   const [showForm, setShowForm] = useState(false)
@@ -17,7 +17,6 @@ export default function Home() {
     async function fetchNewUser() {
       const res = await fetch('/api/identifier')
       const newUser = await res.json()
-      console.log(newUser);
       setUser(newUser)
     }
 
