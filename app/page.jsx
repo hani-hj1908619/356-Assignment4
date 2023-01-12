@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import AddForm from 'app/add-form';
 import IdeaCard from 'app/idea-card';
-import { useIdeaStore } from 'app/stores/store';
+import { useIdeaStore } from 'stores/store';
 
 export default function Home() {
   const [showForm, setShowForm] = useState(false)
