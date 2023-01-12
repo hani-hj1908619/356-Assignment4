@@ -15,7 +15,7 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchNewUser() {
-      const res = await fetch('http://localhost:3000/api/identifier')
+      const res = await fetch('/api/identifier')
       const newUser = await res.json()
       console.log(newUser);
       setUser(newUser)
@@ -26,7 +26,7 @@ export default function Home() {
 
   const query = useQuery(
     ["ideas", user],
-    async () => await fetcher(`http://localhost:3000/api/${user}/ideas`),
+    async () => await fetcher(`/api/${user}/ideas`),
     { retry: false }
   );
 
@@ -39,7 +39,7 @@ export default function Home() {
 
   // Delete
   const deleteIdea = useMutation(async (index) => {
-    await fetch(`http://localhost:3000/api/${user}/ideas`,
+    await fetch(`/api/${user}/ideas`,
       {
         method: "DELETE",
         body: JSON.stringify({ index })
@@ -51,7 +51,7 @@ export default function Home() {
 
   // Add
   const addIdea = useMutation(async (idea) => {
-    await fetch(`http://localhost:3000/api/${user}/ideas`,
+    await fetch(`/api/${user}/ideas`,
       {
         method: "POST",
         body: JSON.stringify(idea)
